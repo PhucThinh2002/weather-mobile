@@ -1,50 +1,105 @@
-# Welcome to your Expo app 👋
+# 🌤️ Weather App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Ứng dụng thời tiết đơn giản với thông tin dự báo hàng ngày và hàng tuần. Được xây dựng bằng **React Native** và **Expo**.
 
-## Get started
+---
 
-1. Install dependencies
+## ⚙️ Yêu cầu hệ thống
 
-   ```bash
+- ✅ **Node.js** (phiên bản **16** trở lên)  
+- ✅ **Android Studio** (để chạy máy ảo Android)  
+- ✅ **Expo Go app** (nếu chạy trên điện thoại thật)
+
+---
+
+## 🚀 Cài đặt và chạy ứng dụng
+
+### 1. Cài đặt Expo CLI
+
+   npm install -g expo-cli
+
+### 2. Clone dự án và cài đặt thư viện
+   git clone https://github.com/PhucThinh2002/weather-mobile
+   cd weather-app
    npm install
-   ```
 
-2. Start the app
+### 3. Cấu hình API Key
+   ⚠️ Nếu API key bị hết hạn, bạn cần thay bằng key mới.
 
-   ```bash
-    npx expo start
-   ```
+   - Mở file: services/api.ts
+   - Tìm dòng:
+         const API_KEY = 'dán_key_của_bạn_vào_đây';
+   - Thay bằng key từ WeatherAPI.com
 
-In the output, you'll find options to open the app in a
+📱 Hướng dẫn chạy trên Android Studio
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+✅ Bước 1: Tạo máy ảo Android (AVD)
+   Mở Android Studio
+   Vào Device Manager → Tạo một máy ảo mới nếu chưa có
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+✅ Bước 2: Khởi động ứng dụng
+   npx expo start
 
-## Get a fresh project
+   Cửa sổ Expo hiện ra → Nhấn a để mở trên máy ảo Android
+   Hoặc dùng điện thoại quét QR Code bằng app Expo Go
 
-When you're ready, run:
+🧠 Lưu ý quan trọng
+   ❗ Lỗi API
+   Kiểm tra lại API key trong services/api.ts
+   Lấy key mới tại WeatherAPI.com
 
-```bash
-npm run reset-project
-```
+   ⌨️ Phím tắt hữu ích khi chạy ứng dụng
+      Phím	            Chức năng
+      r	               Tải lại ứng dụng
+      m	               Mở menu Developer
+      Ctrl+C	         Dừng server Expo
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-## Learn more
+🗂️ Cấu trúc thư mục chính
 
-To learn more about developing your project with Expo, look at the following resources:
+WEATHERAPP/
+├── app/                          # App screens with file-based routing
+│   ├── (tabs)/                   # Tab navigation screens
+│   │   ├── _layout.tsx           # Tab layout configuration
+│   │   ├── index.tsx             # Home screen (current weather)
+│   │   ├── manage-locations.tsx  # Location management screen
+│   │   └── weekly-forecast.tsx   # Weekly forecast screen
+│   └── _layout.tsx               # Root layout
+│
+├── assets/                       # Static assets (images, fonts)
+│
+├── components/                   # Reusable UI components
+│   ├── AddLocationButton.tsx
+│   ├── CityItem.tsx
+│   ├── DailyForecastItem.tsx
+│   ├── HourlyForecast.tsx
+│   ├── SectionHeader.tsx
+│   └── WeatherCard.tsx
+│
+├── constants/                    # App constants
+│   ├── config.ts
+│   └── weathericons.ts
+│
+├── hooks/                        # Custom hooks
+│   └── useWeather.ts
+│
+├── redux/                        # Redux state management
+│   ├── slices/
+│   │   ├── citiesSlice.ts
+│   │   └── weatherSlice.ts
+│   └── store.ts
+│
+├── services/                     # API services
+│   ├── api.ts
+│   └── weatherService.ts
+│
+├── types/                        # TypeScript type definitions
+│   └── weather.d.ts
+│
+└── app.json
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+🖼️ Ảnh minh hoạ (Screenshots)
+   ![màn hình chính](assets/images/weather.png)
+   ![Manage City](assets/images/managecity.png)
+   ![Forecast](assets/images/forecast.png)

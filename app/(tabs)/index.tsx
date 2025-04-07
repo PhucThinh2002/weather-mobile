@@ -1,74 +1,166 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useEffect } from "react";
+import {View,StyleSheet,ScrollView,TouchableOpacity,Text,} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import WeatherCard from "@/components/WeatherCard";
+import HourlyForecast from "@/components/HourlyForecast";
+import SectionHeader from "@/components/SectionHeader";
+import DailyForecastItem from "@/components/DailyForecastItem";
+import { RootState, AppDispatch } from "@/redux/store";
+import { fetchCurrentWeather } from "@/services/weatherService";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+export default function WeatherScreen() {
+  const navigation = useNavigation();
+  const dispatch = useDispatch<AppDispatch>();
+  const { currentCity } = useSelector((state: RootState) => state.cities);
+  const { current, forecast } = useSelector(
+    (state: RootState) => state.weather
+  );
 
-export default function HomeScreen() {
+  useEffect(() => {
+    // Set default to Hanoi if no current city
+    const cityToFetch = currentCity || "Hanoi";
+    dispatch(fetchCurrentWeather(cityToFetch));
+  }, [currentCity, dispatch]);
+
+  if (!current || !forecast) {
+    return <View style={styles.container} />;
+  }
+
+  // Chuẩn bị dữ liệu hourly forecast
+  const hourlyData = forecast.forecastday[0].hour.map((hour) => ({
+    time: hour.time.split(" ")[1],
+    temp: hour.temp_c,
+    condition: hour.condition.text,
+  }));
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <ScrollView style={styles.container}>
+      <TouchableOpacity
+        style={styles.settingsButton}
+        onPress={() => navigation.navigate("settings")} // Hoặc router.push('/(tabs)/manage-locations')
+      >
+        <Ionicons name="ellipsis-vertical" size={24} color="white" />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => router.push("/(tabs)/manage-locations")}
+      >
+        <Ionicons name="add" size={24} color="white" />
+      </TouchableOpacity>
+      <WeatherCard
+        currentTemp={current.temp_c}
+        feelsLike={current.feelslike_c}
+        humidity={current.humidity}
+        windSpeed={current.wind_kph}
+        condition={current.condition.text}
+        city={currentCity}
+        country={current.location?.country || "Viet Nam"}
+        aqi={current.air_quality.us_epa_index}
+      />
+      
+      
+      {/* <HourlyForecast hours={hourlyData} /> */}
+      <HourlyForecast hours={hourlyData.slice(0, 12)} />
+
+      <View style={styles.detailContainer}>
+        <View style={styles.detailRow}>
+          <View style={styles.detailItem}>
+            <Ionicons name="water-outline" size={24} color="white" />
+            <Text style={styles.detailText}>Humidity</Text>
+            <Text style={styles.detailValue}>{current.humidity}%</Text>
+          </View>
+
+          <View style={styles.detailItem}>
+            <Ionicons name="speedometer-outline" size={24} color="white" />
+            <Text style={styles.detailText}>Wind</Text>
+            <Text style={styles.detailValue}>{current.wind_kph} km/h</Text>
+          </View>
+        </View>
+
+        <View style={styles.detailRow}>
+          <View style={styles.detailItem}>
+            <Ionicons name="eye-outline" size={24} color="white" />
+            <Text style={styles.detailText}>Visibility</Text>
+            <Text style={styles.detailValue}>{current.vis_km} km</Text>
+          </View>
+
+          <View style={styles.detailItem}>
+            <Ionicons name="thermometer-outline" size={24} color="white" />
+            <Text style={styles.detailText}>Pressure</Text>
+            <Text style={styles.detailValue}>{current.pressure_mb} hPa</Text>
+          </View>
+        </View>
+
+        <View style={styles.detailRow}>
+          <View style={styles.detailItem}>
+            <Ionicons name="sunny-outline" size={24} color="white" />
+            <Text style={styles.detailText}>UV Index</Text>
+            <Text style={styles.detailValue}>{current.uv}</Text>
+          </View>
+
+          <View style={styles.detailItem}>
+            <Ionicons name="cloud-outline" size={24} color="white" />
+            <Text style={styles.detailText}>Cloud Cover</Text>
+            <Text style={styles.detailValue}>{current.cloud}%</Text>
+          </View>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: "#63b3ed",
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  addButton: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    zIndex: 1,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 20,
+    padding: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  settingsButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 20,
+    padding: 8,
+    zIndex: 1,
+  },
+  detailContainer: {
+    margin: 16,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 12,
+    padding: 16,
+  },
+  detailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  detailItem: {
+    width: "48%",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 8,
+    padding: 12,
+    alignItems: "center",
+  },
+  detailText: {
+    color: "rgba(255, 255, 255, 0.8)",
+    fontSize: 14,
+    marginVertical: 4,
+  },
+  detailValue: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
